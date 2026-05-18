@@ -35,7 +35,6 @@ userSchema.pre("save", async function(next) {
   this.password = await bcrypt.hash(this.password, 10)
   next
 })
-
 // ✅ virtual field - not stored in DB
 userSchema.virtual("displayName").get(function() {
   return `${this.name} (${this.role})`
