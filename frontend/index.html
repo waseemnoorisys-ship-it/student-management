@@ -1,0 +1,1511 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Student Management System</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --primary: #6366f1;
+    --primary-dark: #4f46e5;
+    --secondary: #06b6d4;
+    --success: #10b981;
+    --danger: #ef4444;
+    --warning: #f59e0b;
+    --dark: #0f172a;
+    --darker: #020617;
+    --card-bg: #1e293b;
+    --card-border: #334155;
+    --text: #e2e8f0;
+    --text-muted: #94a3b8;
+    --input-bg: #0f172a;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Space Grotesk', sans-serif;
+    background: var(--darker);
+    color: var(--text);
+    min-height: 100vh;
+  }
+
+  /* NAVBAR */
+  .navbar {
+    background: var(--dark) !important;
+    border-bottom: 1px solid var(--card-border);
+    padding: 12px 0;
+  }
+  .navbar-brand {
+    font-weight: 700;
+    font-size: 1.3rem;
+    color: var(--primary) !important;
+    letter-spacing: -0.5px;
+  }
+  .nav-user {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+  }
+  .btn-logout {
+    background: transparent;
+    border: 1px solid var(--card-border);
+    color: var(--text-muted);
+    font-size: 0.8rem;
+    padding: 4px 12px;
+    border-radius: 6px;
+    transition: all 0.2s;
+  }
+  .btn-logout:hover { border-color: var(--danger); color: var(--danger); }
+
+  /* SIDEBAR */
+  .sidebar {
+    background: var(--dark);
+    border-right: 1px solid var(--card-border);
+    min-height: calc(100vh - 57px);
+    padding: 20px 0;
+    width: 220px;
+    position: fixed;
+    top: 57px;
+    left: 0;
+  }
+  .nav-item-side {
+    padding: 10px 20px;
+    cursor: pointer;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transition: all 0.2s;
+    border-left: 3px solid transparent;
+  }
+  .nav-item-side:hover { color: var(--text); background: rgba(99,102,241,0.1); }
+  .nav-item-side.active {
+    color: var(--primary);
+    background: rgba(99,102,241,0.15);
+    border-left-color: var(--primary);
+  }
+  .nav-section-label {
+    padding: 16px 20px 6px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  /* MAIN CONTENT */
+  .main-content {
+    margin-left: 220px;
+    padding: 24px;
+    min-height: calc(100vh - 57px);
+  }
+
+  /* CARDS */
+  .card {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 12px;
+    color: var(--text);
+  }
+  .card-header {
+    background: rgba(255,255,255,0.03);
+    border-bottom: 1px solid var(--card-border);
+    font-weight: 600;
+    font-size: 0.9rem;
+    padding: 14px 18px;
+    border-radius: 12px 12px 0 0 !important;
+  }
+
+  /* STAT CARDS */
+  .stat-card {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 12px;
+    padding: 20px;
+    position: relative;
+    overflow: hidden;
+  }
+  .stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0; right: 0;
+    width: 80px; height: 80px;
+    border-radius: 0 12px 0 80px;
+    opacity: 0.15;
+  }
+  .stat-card.blue::before { background: var(--primary); }
+  .stat-card.green::before { background: var(--success); }
+  .stat-card.cyan::before { background: var(--secondary); }
+  .stat-card.yellow::before { background: var(--warning); }
+  .stat-number {
+    font-size: 2rem;
+    font-weight: 700;
+    font-family: 'JetBrains Mono', monospace;
+    line-height: 1;
+  }
+  .stat-label { font-size: 0.8rem; color: var(--text-muted); margin-top: 4px; }
+
+  /* INPUTS */
+  .form-control, .form-select {
+    background: var(--input-bg);
+    border: 1px solid var(--card-border);
+    color: var(--text);
+    border-radius: 8px;
+    font-size: 0.875rem;
+    padding: 9px 12px;
+  }
+  .form-control:focus, .form-select:focus {
+    background: var(--input-bg);
+    border-color: var(--primary);
+    color: var(--text);
+    box-shadow: 0 0 0 3px rgba(99,102,241,0.15);
+  }
+  .form-control::placeholder { color: var(--text-muted); }
+  .form-label { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 5px; font-weight: 500; }
+  .form-select option { background: var(--dark); }
+
+  /* BUTTONS */
+  .btn-primary {
+    background: var(--primary);
+    border-color: var(--primary);
+    font-weight: 600;
+    font-size: 0.875rem;
+    border-radius: 8px;
+    padding: 9px 18px;
+  }
+  .btn-primary:hover { background: var(--primary-dark); border-color: var(--primary-dark); }
+  .btn-success { border-radius: 8px; font-size: 0.875rem; font-weight: 600; }
+  .btn-danger  { border-radius: 8px; font-size: 0.875rem; font-weight: 600; }
+  .btn-warning { border-radius: 8px; font-size: 0.875rem; font-weight: 600; }
+  .btn-outline-primary {
+    border-color: var(--primary);
+    color: var(--primary);
+    border-radius: 8px;
+    font-size: 0.875rem;
+  }
+  .btn-outline-primary:hover { background: var(--primary); }
+  .btn-sm { padding: 5px 10px; font-size: 0.78rem; }
+
+  /* TABLE */
+  .table {
+    color: var(--text);
+    font-size: 0.875rem;
+  }
+  .table thead th {
+    background: rgba(255,255,255,0.04);
+    border-color: var(--card-border);
+    color: var(--text-muted);
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 10px 14px;
+  }
+  .table tbody td {
+    border-color: var(--card-border);
+    padding: 12px 14px;
+    vertical-align: middle;
+  }
+  .table tbody tr:hover { background: rgba(255,255,255,0.02); }
+
+  /* BADGES */
+  .badge-grade {
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .grade-A { background: rgba(16,185,129,0.2); color: #10b981; }
+  .grade-B { background: rgba(99,102,241,0.2); color: #818cf8; }
+  .grade-C { background: rgba(245,158,11,0.2); color: #fbbf24; }
+  .grade-D { background: rgba(239,68,68,0.2);  color: #f87171; }
+  .grade-F { background: rgba(239,68,68,0.3);  color: #ef4444; }
+
+  .status-badge {
+    padding: 3px 8px;
+    border-radius: 20px;
+    font-size: 0.72rem;
+    font-weight: 600;
+  }
+  .status-active     { background: rgba(16,185,129,0.15); color: #10b981; }
+  .status-inactive   { background: rgba(148,163,184,0.15); color: #94a3b8; }
+  .status-graduated  { background: rgba(99,102,241,0.15); color: #818cf8; }
+  .status-expelled   { background: rgba(239,68,68,0.15); color: #f87171; }
+
+  /* ALERT */
+  .alert-toast {
+    position: fixed;
+    top: 70px; right: 20px;
+    z-index: 9999;
+    min-width: 280px;
+    border-radius: 10px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    padding: 12px 18px;
+    border: none;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+    display: none;
+    animation: slideIn 0.3s ease;
+  }
+  @keyframes slideIn {
+    from { transform: translateX(100px); opacity: 0; }
+    to   { transform: translateX(0); opacity: 1; }
+  }
+  .alert-success-toast { background: rgba(16,185,129,0.9); color: white; }
+  .alert-danger-toast  { background: rgba(239,68,68,0.9);  color: white; }
+  .alert-warning-toast { background: rgba(245,158,11,0.9); color: white; }
+
+  /* MODAL */
+  .modal-content {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 14px;
+    color: var(--text);
+  }
+  .modal-header {
+    border-bottom: 1px solid var(--card-border);
+    padding: 16px 20px;
+  }
+  .modal-footer { border-top: 1px solid var(--card-border); }
+  .btn-close { filter: invert(1); }
+
+  /* AUTH PAGE */
+  .auth-page {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: radial-gradient(ellipse at top, #1e1b4b 0%, var(--darker) 60%);
+  }
+  .auth-card {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 16px;
+    padding: 36px;
+    width: 100%;
+    max-width: 440px;
+  }
+  .auth-logo {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--primary);
+    letter-spacing: -1px;
+    margin-bottom: 4px;
+  }
+  .auth-subtitle { color: var(--text-muted); font-size: 0.875rem; }
+  .auth-tabs .nav-link {
+    color: var(--text-muted);
+    border: none;
+    padding: 8px 20px;
+    border-radius: 8px;
+    font-weight: 500;
+    font-size: 0.875rem;
+  }
+  .auth-tabs .nav-link.active {
+    background: rgba(99,102,241,0.2);
+    color: var(--primary);
+  }
+
+  /* SEARCH BAR */
+  .search-bar {
+    background: var(--input-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 8px;
+    padding: 8px 14px;
+    color: var(--text);
+    font-size: 0.875rem;
+    width: 100%;
+  }
+  .search-bar:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(99,102,241,0.15);
+  }
+
+  /* SECTION PAGES */
+  .section-page { display: none; }
+  .section-page.active { display: block; }
+
+  /* PAGE TITLE */
+  .page-title {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: var(--text);
+    letter-spacing: -0.5px;
+  }
+  .page-subtitle { font-size: 0.85rem; color: var(--text-muted); }
+
+  /* GPA BAR */
+  .gpa-bar {
+    height: 4px;
+    background: var(--card-border);
+    border-radius: 2px;
+    overflow: hidden;
+    width: 60px;
+    display: inline-block;
+    vertical-align: middle;
+    margin-left: 6px;
+  }
+  .gpa-fill {
+    height: 100%;
+    background: linear-gradient(to right, var(--primary), var(--secondary));
+    border-radius: 2px;
+  }
+
+  /* EMPTY STATE */
+  .empty-state {
+    text-align: center;
+    padding: 48px 24px;
+    color: var(--text-muted);
+  }
+  .empty-state .empty-icon { font-size: 3rem; margin-bottom: 12px; }
+  .empty-state p { font-size: 0.875rem; }
+
+  /* ENROLL TAGS */
+  .course-tag {
+    display: inline-block;
+    background: rgba(99,102,241,0.15);
+    color: #818cf8;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 0.72rem;
+    font-weight: 600;
+    margin: 2px;
+  }
+
+  /* LOADING */
+  .loading-spinner {
+    display: inline-block;
+    width: 16px; height: 16px;
+    border: 2px solid rgba(255,255,255,0.3);
+    border-top-color: white;
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* SCROLLBAR */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: var(--darker); }
+  ::-webkit-scrollbar-thumb { background: var(--card-border); border-radius: 3px; }
+
+  /* PAGINATION */
+  .page-btn {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    color: var(--text-muted);
+    padding: 5px 11px;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .page-btn:hover, .page-btn.active {
+    background: var(--primary);
+    border-color: var(--primary);
+    color: white;
+  }
+  .page-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+</style>
+</head>
+<body>
+
+<!-- TOAST ALERT -->
+<div id="toast" class="alert-toast"></div>
+
+<!-- ══════════════════════════════════════════════ -->
+<!--                  AUTH PAGE                     -->
+<!-- ══════════════════════════════════════════════ -->
+<div id="authPage" class="auth-page">
+  <div class="auth-card">
+    <div class="auth-logo">📚 EduMS</div>
+    <p class="auth-subtitle mb-4">Student Management System</p>
+
+    <ul class="nav auth-tabs mb-4" id="authTabs">
+      <li class="nav-item">
+        <a class="nav-link active" onclick="showAuthTab('login')">Login</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" onclick="showAuthTab('register')">Register</a>
+      </li>
+    </ul>
+
+    <!-- LOGIN FORM -->
+    <div id="loginForm">
+      <div class="mb-3">
+        <label class="form-label">Email Address</label>
+        <input type="email" class="form-control" id="loginEmail" placeholder="teacher@school.com">
+      </div>
+      <div class="mb-4">
+        <label class="form-label">Password</label>
+        <input type="password" class="form-control" id="loginPassword" placeholder="••••••••">
+      </div>
+      <button class="btn btn-primary w-100" onclick="login()">
+        Sign In
+      </button>
+    </div>
+
+    <!-- REGISTER FORM -->
+    <div id="registerForm" style="display:none">
+      <div class="mb-3">
+        <label class="form-label">Full Name</label>
+        <input type="text" class="form-control" id="regName" placeholder="Teacher Name">
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Email Address</label>
+        <input type="email" class="form-control" id="regEmail" placeholder="teacher@school.com">
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Password</label>
+        <input type="password" class="form-control" id="regPassword" placeholder="••••••••">
+      </div>
+      <div class="mb-4">
+        <label class="form-label">Role</label>
+        <select class="form-select" id="regRole">
+          <option value="teacher">Teacher</option>
+          <option value="admin">Admin</option>
+        </select>
+      </div>
+      <button class="btn btn-primary w-100" onclick="register()" data-api="POST /api/auth/register">
+        Create Account
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════ -->
+<!--                  MAIN APP                      -->
+<!-- ══════════════════════════════════════════════ -->
+<div id="mainApp" style="display:none">
+
+  <!-- NAVBAR -->
+  <nav class="navbar navbar-expand-lg">
+    <div class="container-fluid px-4">
+      <span class="navbar-brand">📚 EduMS</span>
+      <div class="d-flex align-items-center gap-3">
+        <span class="nav-user">👤 <span id="navUsername"></span></span>
+        <button class="btn-logout" onclick="logout()">Logout</button>
+      </div>
+    </div>
+  </nav>
+
+  <div class="d-flex">
+
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+      <div class="nav-section-label">Main</div>
+      <div class="nav-item-side active" onclick="showSection('dashboard')">
+        📊 Dashboard
+      </div>
+
+      <div class="nav-section-label">Students</div>
+      <div class="nav-item-side" onclick="showSection('students')">
+        🎓 All Students
+      </div>
+      <div class="nav-item-side" onclick="showSection('addStudent')">
+        ➕ Add Student
+      </div>
+      <div class="nav-item-side" onclick="showSection('topStudents')">
+        🏆 Top Students
+      </div>
+
+      <div class="nav-section-label">Courses</div>
+      <div class="nav-item-side" onclick="showSection('courses')">
+        📖 All Courses
+      </div>
+      <div class="nav-item-side" onclick="showSection('addCourse')">
+        ➕ Add Course
+      </div>
+
+      <div class="nav-section-label">Reports</div>
+      <div class="nav-item-side" onclick="showSection('statistics')">
+        📈 Statistics
+      </div>
+      <div class="nav-item-side" onclick="showSection('profile')">
+        👤 My Profile
+      </div>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div class="main-content">
+
+      <!-- ─── DASHBOARD ─────────────────────────── -->
+      <div id="sec-dashboard" class="section-page active">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+          <div>
+            <div class="page-title">Dashboard</div>
+            <div class="page-subtitle">Overview of your school</div>
+          </div>
+          <button class="btn btn-outline-primary btn-sm" onclick="loadDashboard()">
+            🔄 Refresh
+          </button>
+        </div>
+
+        <div class="row g-3 mb-4">
+          <div class="col-md-3">
+            <div class="stat-card blue">
+              <div class="stat-number text-primary" id="totalStudents">—</div>
+              <div class="stat-label">Total Students</div>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="stat-card green">
+              <div class="stat-number text-success" id="activeStudents">—</div>
+              <div class="stat-label">Active Students</div>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="stat-card cyan">
+              <div class="stat-number" style="color:var(--secondary)" id="totalCourses">—</div>
+              <div class="stat-label">Total Courses</div>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="stat-card yellow">
+              <div class="stat-number text-warning" id="graduatedStudents">—</div>
+              <div class="stat-label">Graduated</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="row g-3">
+          <div class="col-md-6">
+            <div class="card">
+              <div class="card-header">🏆 Top 5 Students by GPA</div>
+              <div class="card-body p-0">
+                <table class="table mb-0">
+                  <thead><tr>
+                    <th>#</th><th>Name</th><th>Roll No</th><th>GPA</th><th>Grade</th>
+                  </tr></thead>
+                  <tbody id="dashTopStudents">
+                    <tr><td colspan="5" class="text-center text-muted py-3">Loading...</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="card">
+              <div class="card-header">📊 Students by Grade</div>
+              <div class="card-body" id="dashGradeStats">
+                <div class="text-muted text-center py-3">Loading...</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ─── ALL STUDENTS ──────────────────────── -->
+      <div id="sec-students" class="section-page">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+          <div>
+            <div class="page-title">Students</div>
+            <div class="page-subtitle">Manage all students</div>
+          </div>
+          <button class="btn btn-primary btn-sm" onclick="showSection('addStudent')">
+            ➕ Add Student
+          </button>
+        </div>
+
+        <!-- Filters -->
+        <div class="card mb-3">
+          <div class="card-body py-3">
+            <div class="row g-2">
+              <div class="col-md-3">
+                <input class="search-bar" id="filterName" placeholder="🔍 Search by name...">
+              </div>
+              <div class="col-md-2">
+                <select class="form-select" id="filterStatus">
+                  <option value="">All Status</option>
+                  <option value="active">Active</option>
+                  <option value="inactive">Inactive</option>
+                  <option value="graduated">Graduated</option>
+                  <option value="expelled">Expelled</option>
+                </select>
+              </div>
+              <div class="col-md-2">
+                <select class="form-select" id="filterGrade">
+                  <option value="">All Grades</option>
+                  <option value="A">Grade A</option>
+                  <option value="B">Grade B</option>
+                  <option value="C">Grade C</option>
+                  <option value="D">Grade D</option>
+                  <option value="F">Grade F</option>
+                </select>
+              </div>
+              <div class="col-md-2">
+                <select class="form-select" id="filterGender">
+                  <option value="">All Gender</option>
+                  <option value="male">Male</option>
+                  <option value="female">Female</option>
+                </select>
+              </div>
+              <div class="col-md-1">
+                <input class="form-control" id="filterMinGpa" placeholder="Min GPA" type="number" step="0.1" min="0" max="4">
+              </div>
+              <div class="col-md-1">
+                <input class="form-control" id="filterMaxGpa" placeholder="Max GPA" type="number" step="0.1" min="0" max="4">
+              </div>
+              <div class="col-md-1">
+                <button class="btn btn-primary w-100" onclick="loadStudents()">Filter</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-body p-0">
+            <table class="table mb-0">
+              <thead><tr>
+                <th>Roll No</th>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Age</th>
+                <th>GPA</th>
+                <th>Grade</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr></thead>
+              <tbody id="studentsTable">
+                <tr><td colspan="8" class="text-center text-muted py-4">Loading...</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="card-footer d-flex justify-content-between align-items-center py-2 px-3" style="background:rgba(255,255,255,0.02); border-top:1px solid var(--card-border)">
+            <span id="studentsInfo" class="text-muted" style="font-size:0.8rem"></span>
+            <div id="studentsPagination" class="d-flex gap-1"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ─── ADD STUDENT ───────────────────────── -->
+      <div id="sec-addStudent" class="section-page">
+        <div class="mb-4">
+          <div class="page-title">Add New Student</div>
+          <div class="page-subtitle">Register a new student</div>
+        </div>
+        <div class="card" style="max-width:700px">
+          <div class="card-header">Student Information</div>
+          <div class="card-body">
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label">Full Name *</label>
+                <input class="form-control" id="sName" placeholder="Student name">
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Email *</label>
+                <input type="email" class="form-control" id="sEmail" placeholder="student@email.com">
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Phone *</label>
+                <input class="form-control" id="sPhone" placeholder="03001234567">
+              </div>
+              <div class="col-md-3">
+                <label class="form-label">Age *</label>
+                <input type="number" class="form-control" id="sAge" placeholder="20" min="15" max="40">
+              </div>
+              <div class="col-md-3">
+                <label class="form-label">Gender *</label>
+                <select class="form-select" id="sGender">
+                  <option value="">Select</option>
+                  <option value="male">Male</option>
+                  <option value="female">Female</option>
+                  <option value="other">Other</option>
+                </select>
+              </div>
+              <div class="col-md-3">
+                <label class="form-label">Grade</label>
+                <select class="form-select" id="sGrade">
+                  <option value="A">A</option>
+                  <option value="B">B</option>
+                  <option value="C" selected>C</option>
+                  <option value="D">D</option>
+                  <option value="F">F</option>
+                </select>
+              </div>
+              <div class="col-md-3">
+                <label class="form-label">GPA</label>
+                <input type="number" class="form-control" id="sGpa" placeholder="0.00" min="0" max="4" step="0.01">
+              </div>
+              <div class="col-md-3">
+                <label class="form-label">Status</label>
+                <select class="form-select" id="sStatus">
+                  <option value="active">Active</option>
+                  <option value="inactive">Inactive</option>
+                </select>
+              </div>
+              <div class="col-12"><hr style="border-color:var(--card-border)"></div>
+              <div class="col-md-4">
+                <label class="form-label">Street</label>
+                <input class="form-control" id="sStreet" placeholder="Street address">
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">City</label>
+                <input class="form-control" id="sCity" placeholder="City">
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Country</label>
+                <input class="form-control" id="sCountry" placeholder="Pakistan" value="Pakistan">
+              </div>
+            </div>
+            <div class="mt-4 d-flex gap-2">
+              <button class="btn btn-primary" onclick="addStudent()">Add Student</button>
+              <button class="btn btn-outline-primary" onclick="showSection('students')">Cancel</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ─── TOP STUDENTS ──────────────────────── -->
+      <div id="sec-topStudents" class="section-page">
+        <div class="mb-4">
+          <div class="page-title">🏆 Top Students</div>
+          <div class="page-subtitle">Highest GPA students (active only)</div>
+        </div>
+        <div class="card">
+          <div class="card-body p-0">
+            <table class="table mb-0">
+              <thead><tr>
+                <th>Rank</th><th>Name</th><th>Roll No</th>
+                <th>GPA</th><th>Grade</th><th>Email</th>
+              </tr></thead>
+              <tbody id="topStudentsTable">
+                <tr><td colspan="6" class="text-center text-muted py-4">Loading...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ─── ALL COURSES ───────────────────────── -->
+      <div id="sec-courses" class="section-page">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+          <div>
+            <div class="page-title">Courses</div>
+            <div class="page-subtitle">All available courses</div>
+          </div>
+          <button class="btn btn-primary btn-sm" onclick="showSection('addCourse')">
+            ➕ Add Course
+          </button>
+        </div>
+        <div class="row g-3" id="coursesGrid">
+          <div class="col-12 text-center text-muted py-4">Loading...</div>
+        </div>
+      </div>
+
+      <!-- ─── ADD COURSE ────────────────────────── -->
+      <div id="sec-addCourse" class="section-page">
+        <div class="mb-4">
+          <div class="page-title">Add New Course</div>
+          <div class="page-subtitle">Create a new course</div>
+        </div>
+        <div class="card" style="max-width:500px">
+          <div class="card-header">Course Information</div>
+          <div class="card-body">
+            <div class="row g-3">
+              <div class="col-12">
+                <label class="form-label">Course Name *</label>
+                <input class="form-control" id="cName" placeholder="e.g. Node.js Fundamentals">
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Course Code *</label>
+                <input class="form-control" id="cCode" placeholder="e.g. NJS101">
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Credits *</label>
+                <input type="number" class="form-control" id="cCredits" placeholder="3" min="1" max="6">
+              </div>
+              <div class="col-12">
+                <label class="form-label">Description</label>
+                <textarea class="form-control" id="cDesc" placeholder="Course description..." rows="3"></textarea>
+              </div>
+            </div>
+            <div class="mt-4 d-flex gap-2">
+              <button class="btn btn-primary" onclick="addCourse()">Add Course</button>
+              <button class="btn btn-outline-primary" onclick="showSection('courses')">Cancel</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ─── STATISTICS ────────────────────────── -->
+      <div id="sec-statistics" class="section-page">
+        <div class="mb-4">
+          <div class="page-title">📈 Statistics</div>
+          <div class="page-subtitle">Detailed analytics</div>
+        </div>
+        <div class="row g-3" id="statsContainer">
+          <div class="col-12 text-center text-muted py-4">Loading...</div>
+        </div>
+      </div>
+
+      <!-- ─── PROFILE ───────────────────────────── -->
+      <div id="sec-profile" class="section-page">
+        <div class="mb-4">
+          <div class="page-title">My Profile</div>
+          <div class="page-subtitle">Your account information</div>
+        </div>
+        <div class="card" style="max-width:400px">
+          <div class="card-body" id="profileContent">
+            <div class="text-muted text-center py-3">Loading...</div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- end main-content -->
+  </div><!-- end d-flex -->
+</div><!-- end mainApp -->
+
+<!-- ─── STUDENT DETAIL MODAL ──────────────────────── -->
+<div class="modal fade" id="studentModal" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h6 class="modal-title fw-bold">Student Details</h6>
+        <button class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body" id="studentModalBody"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ─── EDIT STUDENT MODAL ────────────────────────── -->
+<div class="modal fade" id="editModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h6 class="modal-title fw-bold">Edit Student</h6>
+        <button class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="editStudentId">
+        <div class="row g-3">
+          <div class="col-md-6">
+            <label class="form-label">Name</label>
+            <input class="form-control" id="editName">
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Phone</label>
+            <input class="form-control" id="editPhone">
+          </div>
+          <div class="col-md-4">
+            <label class="form-label">Grade</label>
+            <select class="form-select" id="editGrade">
+              <option value="A">A</option>
+              <option value="B">B</option>
+              <option value="C">C</option>
+              <option value="D">D</option>
+              <option value="F">F</option>
+            </select>
+          </div>
+          <div class="col-md-4">
+            <label class="form-label">GPA</label>
+            <input type="number" class="form-control" id="editGpa" min="0" max="4" step="0.01">
+          </div>
+          <div class="col-md-4">
+            <label class="form-label">Status</label>
+            <select class="form-select" id="editStatus">
+              <option value="active">Active</option>
+              <option value="inactive">Inactive</option>
+              <option value="graduated">Graduated</option>
+              <option value="expelled">Expelled</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline-primary btn-sm" data-bs-dismiss="modal">Cancel</button>
+        <button class="btn btn-primary btn-sm" onclick="updateStudent()">Save Changes</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ─── ENROLL MODAL ──────────────────────────────── -->
+<div class="modal fade" id="enrollModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h6 class="modal-title fw-bold">Enroll / Unenroll</h6>
+        <button class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="enrollStudentId">
+        <div class="mb-3">
+          <label class="form-label">Select Course</label>
+          <select class="form-select" id="enrollCourseId"></select>
+        </div>
+        <div class="d-flex gap-2">
+          <button class="btn btn-success btn-sm" onclick="enrollStudent()">Enroll</button>
+          <button class="btn btn-danger btn-sm" onclick="unenrollStudent()">Unenroll</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+
+  // all buttons having data-api
+  const elements = document.querySelectorAll("[data-api]");
+
+  elements.forEach((el) => {
+
+    el.addEventListener("mouseenter", () => {
+
+      // show api path on hover
+      el.setAttribute(
+        "title",
+        el.getAttribute("data-api")
+      );
+
+    });
+
+  });
+
+</script>
+<script>
+
+// ══════════════════════════════════════════════════════
+//                    CONFIGURATION
+// ══════════════════════════════════════════════════════
+const BASE = "http://localhost:8000"
+let token = ""
+let currentPage = 1
+let allCourses = []
+
+// ══════════════════════════════════════════════════════
+//                    UTILITIES
+// ══════════════════════════════════════════════════════
+function toast(msg, type = "success") {
+  const el = document.getElementById("toast")
+  el.className = `alert-toast alert-${type}-toast`
+  el.textContent = msg
+  el.style.display = "block"
+  setTimeout(() => { el.style.display = "none" }, 3000)
+}
+
+function headers(includeContent = true) {
+  const h = { "authorization": token }
+  if (includeContent) h["Content-Type"] = "application/json"
+  return h
+}
+
+async function api(method, path, body = null) {
+  const opts = { method, headers: headers() }
+  if (body) opts.body = JSON.stringify(body)
+  const res = await fetch(`${BASE}${path}`, opts)
+  const data = await res.json()
+  if (!res.ok) throw new Error(data.error || "Request failed")
+  return data
+}
+
+function gradeClass(g) {
+  return { A:"grade-A", B:"grade-B", C:"grade-C", D:"grade-D", F:"grade-F" }[g] || ""
+}
+
+function statusClass(s) {
+  return `status-${s}`
+}
+
+// ══════════════════════════════════════════════════════
+//                    AUTH
+// ══════════════════════════════════════════════════════
+function showAuthTab(tab) {
+  document.getElementById("loginForm").style.display    = tab === "login"    ? "block" : "none"
+  document.getElementById("registerForm").style.display = tab === "register" ? "block" : "none"
+  document.querySelectorAll(".auth-tabs .nav-link").forEach((el, i) => {
+    el.classList.toggle("active", (i === 0 && tab === "login") || (i === 1 && tab === "register"))
+  })
+}
+
+async function login() {
+  const email    = document.getElementById("loginEmail").value
+  const password = document.getElementById("loginPassword").value
+  if (!email || !password) return toast("Please fill all fields", "warning")
+
+  try {
+    const data = await api("POST", "/api/auth/login", { email, password })
+    token = data.token
+    document.getElementById("navUsername").textContent = data.user.name
+    document.getElementById("authPage").style.display = "none"
+    document.getElementById("mainApp").style.display  = "block"
+    loadDashboard()
+    loadCourses()
+    toast("Welcome back! 👋")
+  } catch (err) { toast(err.message, "danger") }
+}
+
+async function register() {
+  const name     = document.getElementById("regName").value
+  const email    = document.getElementById("regEmail").value
+  const password = document.getElementById("regPassword").value
+  const role     = document.getElementById("regRole").value
+  if (!name || !email || !password) return toast("Please fill all fields", "warning")
+
+  try {
+    await api("POST", "/api/auth/register", { name, email, password, role })
+    toast("Registered! Please login.")
+    showAuthTab("login")
+  } catch (err) { toast(err.message, "danger") }
+}
+
+function logout() {
+  token = ""
+  document.getElementById("authPage").style.display = "flex"
+  document.getElementById("mainApp").style.display  = "none"
+  toast("Logged out successfully")
+}
+
+// ══════════════════════════════════════════════════════
+//                    NAVIGATION
+// ══════════════════════════════════════════════════════
+function showSection(name) {
+  document.querySelectorAll(".section-page").forEach(el => el.classList.remove("active"))
+  document.querySelectorAll(".nav-item-side").forEach(el => el.classList.remove("active"))
+  document.getElementById(`sec-${name}`).classList.add("active")
+
+  const sideItems = document.querySelectorAll(".nav-item-side")
+  sideItems.forEach(el => {
+    if (el.getAttribute("onclick")?.includes(name)) el.classList.add("active")
+  })
+
+  // load data when switching sections
+  if (name === "students")    loadStudents()
+  if (name === "topStudents") loadTopStudents()
+  if (name === "courses")     loadCourses()
+  if (name === "statistics")  loadStatistics()
+  if (name === "profile")     loadProfile()
+  if (name === "dashboard")   loadDashboard()
+}
+
+// ══════════════════════════════════════════════════════
+//                    DASHBOARD
+// ══════════════════════════════════════════════════════
+async function loadDashboard() {
+  try {
+    const [statsData, topData, coursesData] = await Promise.all([
+      api("GET", "/api/students/statistics"),
+      api("GET", "/api/students/top"),
+      api("GET", "/api/courses")
+    ])
+
+    // stat numbers
+    const total    = statsData.totalStudents || 0
+    const active   = statsData.statusStats?.find(s => s._id === "active")?.count || 0
+    const grad     = statsData.statusStats?.find(s => s._id === "graduated")?.count || 0
+    document.getElementById("totalStudents").textContent    = total
+    document.getElementById("activeStudents").textContent   = active
+    document.getElementById("totalCourses").textContent     = coursesData.total || 0
+    document.getElementById("graduatedStudents").textContent = grad
+
+    // top students table
+    const tbody = document.getElementById("dashTopStudents")
+    const top5  = (topData.topStudents || []).slice(0, 5)
+    tbody.innerHTML = top5.length ? top5.map((s, i) => `
+      <tr>
+        <td><span style="color:var(--warning);font-weight:700">${["🥇","🥈","🥉","4","5"][i]}</span></td>
+        <td>${s.name}</td>
+        <td><code style="color:var(--secondary);font-size:0.75rem">${s.rollNumber}</code></td>
+        <td><strong style="color:var(--success)">${s.gpa}</strong></td>
+        <td><span class="badge-grade ${gradeClass(s.grade)}">${s.grade}</span></td>
+      </tr>
+    `).join("") : `<tr><td colspan="5" class="text-center text-muted">No data</td></tr>`
+
+    // grade stats
+    const gradeEl = document.getElementById("dashGradeStats")
+    const grades  = statsData.gradeStats || []
+    gradeEl.innerHTML = grades.map(g => `
+      <div class="d-flex justify-content-between align-items-center mb-2">
+        <span class="badge-grade ${gradeClass(g.grade)}">${g.grade}</span>
+        <div class="flex-grow-1 mx-3" style="height:6px;background:var(--card-border);border-radius:3px;overflow:hidden">
+          <div style="height:100%;width:${Math.min((g.totalStudents/total)*100,100)}%;background:var(--primary);border-radius:3px"></div>
+        </div>
+        <span style="font-size:0.8rem;color:var(--text-muted)">${g.totalStudents} students</span>
+      </div>
+    `).join("") || "<div class='text-muted text-center'>No data</div>"
+
+  } catch (err) { toast(err.message, "danger") }
+}
+
+// ══════════════════════════════════════════════════════
+//                    STUDENTS
+// ══════════════════════════════════════════════════════
+async function loadStudents(page = 1) {
+  currentPage = page
+  const name    = document.getElementById("filterName")?.value || ""
+  const status  = document.getElementById("filterStatus")?.value || ""
+  const grade   = document.getElementById("filterGrade")?.value || ""
+  const gender  = document.getElementById("filterGender")?.value || ""
+  const minGpa  = document.getElementById("filterMinGpa")?.value || ""
+  const maxGpa  = document.getElementById("filterMaxGpa")?.value || ""
+
+  let url = `/api/students?page=${page}&limit=8`
+  if (name)   url += `&name=${name}`
+  if (status) url += `&status=${status}`
+  if (grade)  url += `&grade=${grade}`
+  if (gender) url += `&gender=${gender}`
+  if (minGpa) url += `&minGpa=${minGpa}`
+  if (maxGpa) url += `&maxGpa=${maxGpa}`
+
+  try {
+    const data = await api("GET", url)
+    const tbody = document.getElementById("studentsTable")
+
+    if (!data.students.length) {
+      tbody.innerHTML = `<tr><td colspan="8"><div class="empty-state"><div class="empty-icon">🎓</div><p>No students found</p></div></td></tr>`
+    } else {
+      tbody.innerHTML = data.students.map(s => `
+        <tr>
+          <td><code style="color:var(--secondary);font-size:0.78rem">${s.rollNumber}</code></td>
+          <td><strong>${s.name}</strong></td>
+          <td style="color:var(--text-muted);font-size:0.82rem">${s.email}</td>
+          <td>${s.age}</td>
+          <td>
+            <strong style="color:var(--success)">${s.gpa || 0}</strong>
+            <span class="gpa-bar"><span class="gpa-fill" style="width:${(s.gpa/4)*100}%"></span></span>
+          </td>
+          <td><span class="badge-grade ${gradeClass(s.grade)}">${s.grade}</span></td>
+          <td><span class="status-badge ${statusClass(s.status)}">${s.status}</span></td>
+          <td>
+            <div class="d-flex gap-1">
+              <button class="btn btn-sm btn-outline-primary" onclick="viewStudent('${s._id}')">👁</button>
+              <button class="btn btn-sm btn-warning" onclick="openEdit('${s._id}','${s.name}','${s.phone||""}','${s.grade}','${s.gpa||0}','${s.status}')">✏️</button>
+              <button class="btn btn-sm btn-success" onclick="openEnroll('${s._id}')">📖</button>
+              <button class="btn btn-sm btn-danger" onclick="deleteStudent('${s._id}')">🗑</button>
+            </div>
+          </td>
+        </tr>
+      `).join("")
+    }
+
+    // info text
+    document.getElementById("studentsInfo").textContent =
+      `Showing ${data.students.length} of ${data.total} students`
+
+    // pagination
+    const pgEl = document.getElementById("studentsPagination")
+    pgEl.innerHTML = ""
+    for (let i = 1; i <= data.totalPages; i++) {
+      const btn = document.createElement("button")
+      btn.className = `page-btn ${i === page ? "active" : ""}`
+      btn.textContent = i
+      btn.onclick = () => loadStudents(i)
+      pgEl.appendChild(btn)
+    }
+  } catch (err) { toast(err.message, "danger") }
+}
+
+async function addStudent() {
+  const body = {
+    name:   document.getElementById("sName").value,
+    email:  document.getElementById("sEmail").value,
+    phone:  document.getElementById("sPhone").value,
+    age:    Number(document.getElementById("sAge").value),
+    gender: document.getElementById("sGender").value,
+    grade:  document.getElementById("sGrade").value,
+    gpa:    Number(document.getElementById("sGpa").value || 0),
+    status: document.getElementById("sStatus").value,
+    address: {
+      street:  document.getElementById("sStreet").value,
+      city:    document.getElementById("sCity").value,
+      country: document.getElementById("sCountry").value
+    }
+  }
+  if (!body.name || !body.email || !body.phone || !body.age || !body.gender) {
+    return toast("Please fill required fields", "warning")
+  }
+  try {
+    await api("POST", "/api/students", body)
+    toast("Student added successfully! 🎓")
+    showSection("students")
+  } catch (err) { toast(err.message, "danger") }
+}
+
+async function viewStudent(id) {
+  try {
+    const data = await api("GET", `/api/students/${id}`)
+    const s = data.student
+    document.getElementById("studentModalBody").innerHTML = `
+      <div class="row g-3">
+        <div class="col-md-6">
+          <div style="background:rgba(255,255,255,0.03);padding:16px;border-radius:10px">
+            <div style="font-size:0.72rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">Personal Info</div>
+            <div class="mb-2"><strong>${s.name}</strong></div>
+            <div style="font-size:0.85rem;color:var(--text-muted)">${s.email}</div>
+            <div style="font-size:0.85rem;color:var(--text-muted)">${s.phone || "—"}</div>
+            <div style="font-size:0.85rem;margin-top:8px">${s.gender} • Age ${s.age}</div>
+            <div style="font-size:0.85rem">${s.address?.city || ""} ${s.address?.country || ""}</div>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div style="background:rgba(255,255,255,0.03);padding:16px;border-radius:10px">
+            <div style="font-size:0.72rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">Academic Info</div>
+            <div class="mb-2"><code style="color:var(--secondary)">${s.rollNumber}</code></div>
+            <div class="d-flex gap-2 mb-2">
+              <span class="badge-grade ${gradeClass(s.grade)}">${s.grade}</span>
+              <span class="status-badge ${statusClass(s.status)}">${s.status}</span>
+            </div>
+            <div style="font-size:0.85rem">GPA: <strong style="color:var(--success)">${s.gpa || 0}</strong> / 4.0</div>
+            <div style="font-size:0.85rem;color:var(--text-muted);margin-top:4px">
+              Added by: ${s.addedBy?.name || "—"}
+            </div>
+          </div>
+        </div>
+        <div class="col-12">
+          <div style="font-size:0.72rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">Enrolled Courses</div>
+          <div>${s.courses?.length ? s.courses.map(c =>
+            `<span class="course-tag">${c.code} — ${c.name}</span>`
+          ).join("") : '<span style="color:var(--text-muted);font-size:0.85rem">No courses enrolled</span>'}</div>
+        </div>
+      </div>
+    `
+    new bootstrap.Modal(document.getElementById("studentModal")).show()
+  } catch (err) { toast(err.message, "danger") }
+}
+
+function openEdit(id, name, phone, grade, gpa, status) {
+  document.getElementById("editStudentId").value = id
+  document.getElementById("editName").value      = name
+  document.getElementById("editPhone").value     = phone
+  document.getElementById("editGrade").value     = grade
+  document.getElementById("editGpa").value       = gpa
+  document.getElementById("editStatus").value    = status
+  new bootstrap.Modal(document.getElementById("editModal")).show()
+}
+
+async function updateStudent() {
+  const id = document.getElementById("editStudentId").value
+  const body = {
+    name:   document.getElementById("editName").value,
+    phone:  document.getElementById("editPhone").value,
+    grade:  document.getElementById("editGrade").value,
+    gpa:    Number(document.getElementById("editGpa").value),
+    status: document.getElementById("editStatus").value
+  }
+  try {
+    await api("PUT", `/api/students/${id}`, body)
+    bootstrap.Modal.getInstance(document.getElementById("editModal")).hide()
+    toast("Student updated! ✅")
+    loadStudents(currentPage)
+  } catch (err) { toast(err.message, "danger") }
+}
+
+async function deleteStudent(id) {
+  if (!confirm("Are you sure you want to delete this student?")) return
+  try {
+    await api("DELETE", `/api/students/${id}`)
+    toast("Student deleted!")
+    loadStudents(currentPage)
+  } catch (err) { toast(err.message, "danger") }
+}
+
+async function loadTopStudents() {
+  try {
+    const data = await api("GET", "/api/students/top")
+    const tbody = document.getElementById("topStudentsTable")
+    const medals = ["🥇","🥈","🥉"]
+    tbody.innerHTML = data.topStudents.map((s, i) => `
+      <tr>
+        <td><span style="font-size:1.2rem">${medals[i] || `#${i+1}`}</span></td>
+        <td><strong>${s.name}</strong></td>
+        <td><code style="color:var(--secondary);font-size:0.78rem">${s.rollNumber}</code></td>
+        <td><strong style="color:var(--success);font-size:1.1rem">${s.gpa}</strong></td>
+        <td><span class="badge-grade ${gradeClass(s.grade)}">${s.grade}</span></td>
+        <td style="color:var(--text-muted);font-size:0.82rem">${s.email}</td>
+      </tr>
+    `).join("")
+  } catch (err) { toast(err.message, "danger") }
+}
+
+// ══════════════════════════════════════════════════════
+//                    COURSES
+// ══════════════════════════════════════════════════════
+async function loadCourses() {
+  try {
+    const data = await api("GET", "/api/courses")
+    allCourses = data.courses || []
+
+    const grid = document.getElementById("coursesGrid")
+    if (!allCourses.length) {
+      grid.innerHTML = `<div class="col-12"><div class="empty-state"><div class="empty-icon">📖</div><p>No courses yet</p></div></div>`
+      return
+    }
+    grid.innerHTML = allCourses.map(c => `
+      <div class="col-md-4">
+        <div class="card h-100">
+          <div class="card-body">
+            <div class="d-flex justify-content-between align-items-start mb-2">
+              <code style="color:var(--primary);font-size:0.85rem;font-weight:600">${c.code}</code>
+              <span style="background:rgba(99,102,241,0.15);color:#818cf8;padding:2px 8px;border-radius:4px;font-size:0.75rem;font-weight:600">
+                ${c.credits} credits
+              </span>
+            </div>
+            <div style="font-weight:600;margin-bottom:4px">${c.name}</div>
+            <div style="font-size:0.82rem;color:var(--text-muted);margin-bottom:12px">
+              ${c.description || "No description"}
+            </div>
+            <div style="font-size:0.78rem;color:var(--text-muted)">
+              👨‍🏫 ${c.teacher?.name || "—"}
+            </div>
+          </div>
+        </div>
+      </div>
+    `).join("")
+
+    // also populate enroll dropdown
+    const sel = document.getElementById("enrollCourseId")
+    sel.innerHTML = allCourses.map(c =>
+      `<option value="${c._id}">${c.code} — ${c.name}</option>`
+    ).join("")
+  } catch (err) { toast(err.message, "danger") }
+}
+
+async function addCourse() {
+  const body = {
+    name:        document.getElementById("cName").value,
+    code:        document.getElementById("cCode").value,
+    credits:     Number(document.getElementById("cCredits").value),
+    description: document.getElementById("cDesc").value
+  }
+  if (!body.name || !body.code || !body.credits) {
+    return toast("Please fill required fields", "warning")
+  }
+  try {
+    await api("POST", "/api/courses", body)
+    toast("Course added! 📖")
+    showSection("courses")
+  } catch (err) { toast(err.message, "danger") }
+}
+
+// ══════════════════════════════════════════════════════
+//                 ENROLL / UNENROLL
+// ══════════════════════════════════════════════════════
+function openEnroll(studentId) {
+  document.getElementById("enrollStudentId").value = studentId
+  new bootstrap.Modal(document.getElementById("enrollModal")).show()
+}
+
+async function enrollStudent() {
+  const studentId = document.getElementById("enrollStudentId").value
+  const courseId  = document.getElementById("enrollCourseId").value
+  try {
+    await api("POST", `/api/students/${studentId}/enroll`, { courseId })
+    bootstrap.Modal.getInstance(document.getElementById("enrollModal")).hide()
+    toast("Student enrolled! ✅")
+  } catch (err) { toast(err.message, "danger") }
+}
+
+async function unenrollStudent() {
+  const studentId = document.getElementById("enrollStudentId").value
+  const courseId  = document.getElementById("enrollCourseId").value
+  try {
+    await api("POST", `/api/students/${studentId}/unenroll`, { courseId })
+    bootstrap.Modal.getInstance(document.getElementById("enrollModal")).hide()
+    toast("Student unenrolled!")
+  } catch (err) { toast(err.message, "danger") }
+}
+
+// ══════════════════════════════════════════════════════
+//                    STATISTICS
+// ══════════════════════════════════════════════════════
+async function loadStatistics() {
+  try {
+    const data = await api("GET", "/api/students/statistics")
+    const el   = document.getElementById("statsContainer")
+
+    el.innerHTML = `
+      <div class="col-md-6">
+        <div class="card">
+          <div class="card-header">📊 By Grade</div>
+          <div class="card-body p-0">
+            <table class="table mb-0">
+              <thead><tr><th>Grade</th><th>Students</th><th>Avg GPA</th><th>Max GPA</th></tr></thead>
+              <tbody>
+                ${(data.gradeStats||[]).map(g => `
+                  <tr>
+                    <td><span class="badge-grade ${gradeClass(g.grade)}">${g.grade}</span></td>
+                    <td><strong>${g.totalStudents}</strong></td>
+                    <td style="color:var(--success)">${g.averageGpa}</td>
+                    <td>${g.maxGpa}</td>
+                  </tr>
+                `).join("")}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="card">
+          <div class="card-header">📌 By Status</div>
+          <div class="card-body">
+            ${(data.statusStats||[]).map(s => `
+              <div class="d-flex justify-content-between mb-2">
+                <span class="status-badge ${statusClass(s._id)}">${s._id}</span>
+                <strong>${s.count}</strong>
+              </div>
+            `).join("")}
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="card">
+          <div class="card-header">👤 By Gender</div>
+          <div class="card-body">
+            ${(data.genderStats||[]).map(g => `
+              <div class="d-flex justify-content-between mb-2">
+                <span style="color:var(--text-muted);font-size:0.875rem">${g._id}</span>
+                <strong>${g.count}</strong>
+              </div>
+            `).join("")}
+          </div>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div class="card">
+          <div class="card-header">🏙️ Top Cities</div>
+          <div class="card-body">
+            ${(data.cityStats||[]).map(c => `
+              <div class="d-flex justify-content-between mb-2">
+                <span style="font-size:0.875rem">${c._id || "Unknown"}</span>
+                <strong>${c.count}</strong>
+              </div>
+            `).join("")}
+          </div>
+        </div>
+      </div>
+    `
+  } catch (err) { toast(err.message, "danger") }
+}
+
+// ══════════════════════════════════════════════════════
+//                    PROFILE
+// ══════════════════════════════════════════════════════
+async function loadProfile() {
+  try {
+    const user = await api("GET", "/api/auth/profile")
+    document.getElementById("profileContent").innerHTML = `
+      <div style="text-align:center;padding:16px 0">
+        <div style="width:64px;height:64px;background:rgba(99,102,241,0.2);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 12px;font-size:1.8rem">
+          👤
+        </div>
+        <div style="font-size:1.1rem;font-weight:700">${user.name}</div>
+        <div style="color:var(--text-muted);font-size:0.85rem;margin-bottom:8px">${user.email}</div>
+        <span style="background:rgba(99,102,241,0.2);color:#818cf8;padding:3px 12px;border-radius:20px;font-size:0.78rem;font-weight:600;text-transform:uppercase">
+          ${user.role}
+        </span>
+        <div style="margin-top:16px;font-size:0.78rem;color:var(--text-muted)">
+          Member since ${new Date(user.createdAt).toLocaleDateString()}
+        </div>
+      </div>
+    `
+  } catch (err) { toast(err.message, "danger") }
+}
+
+</script>
+</body>
+</html>

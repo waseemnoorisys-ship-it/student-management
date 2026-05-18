@@ -1,0 +1,16 @@
+# Dependency folders (Never upload these, they are massive)
+node_modules/
+jspm_packages/
+
+# Environment variables / Private Keys (CRITICAL: Never upload your passwords!)
+.env
+.env.local
+
+# Debug logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Operating system files
+.DS_Store
+Thumbs.db
